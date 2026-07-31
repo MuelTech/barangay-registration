@@ -38,9 +38,11 @@ export interface FamilyData {
   members: FamilyMemberData[];
 }
 
+const toYesNo = (value: boolean): string => (value ? "Yes" : "No");
+
 export function exportToExcel(data: FamilyData) {
   const familyId = `FAM-${Date.now()}`;
-  const rows: Record<string, string | boolean>[] = [];
+  const rows: Record<string, string>[] = [];
 
   const baseFields = {
     family_id: familyId,
@@ -49,11 +51,11 @@ export function exportToExcel(data: FamilyData) {
     house_number: data.houseNumber,
     street_name: data.streetName,
     alley: data.alley,
-    has_pets: data.hasPets,
+    has_pets: toYesNo(data.hasPets),
     number_of_dogs: data.numberOfDogs,
     number_of_cats: data.numberOfCats,
     other_animals: data.otherAnimals,
-    has_vehicles: data.hasVehicles,
+    has_vehicles: toYesNo(data.hasVehicles),
     number_of_motorcycles: data.numberOfMotorcycles,
     motorcycle_plate_numbers: data.motorcyclePlateNumbers,
     number_of_other_vehicles: data.numberOfOtherVehicles,
@@ -74,12 +76,12 @@ export function exportToExcel(data: FamilyData) {
       sex: member.sex,
       contact_number: member.contactNumber,
       occupation: member.occupation,
-      is_student: member.isStudent,
+      is_student: toYesNo(member.isStudent),
       education_level: member.educationLevel,
-      is_voter: member.isVoter,
-      is_pwd: member.isPwd,
-      is_solo_parent: member.isSoloParent,
-      is_owner: member.relationship === "Head",
+      is_voter: toYesNo(member.isVoter),
+      is_pwd: toYesNo(member.isPwd),
+      is_solo_parent: toYesNo(member.isSoloParent),
+      is_owner: toYesNo(member.relationship === "Head"),
     });
   };
 
