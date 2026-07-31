@@ -32,12 +32,48 @@ export function validateName(value: string, fieldName: string): string | null {
   return null;
 }
 
+export function validateDateOfBirth(dateStr: string): string | null {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return 'Invalid date format';
+  const now = new Date();
+  if (date > now) return 'Date cannot be in the future';
+  const maxAge = new Date();
+  maxAge.setFullYear(maxAge.getFullYear() - 150);
+  if (date < maxAge) return 'Date is too old';
+  return null;
+}
+
+export function validateNumber(value: string, min: number, max: number, fieldName: string): string | null {
+  if (!value || value.trim() === '') return null;
+  const num = parseInt(value, 10);
+  if (isNaN(num)) return `${fieldName} must be a number`;
+  if (num < min) return `${fieldName} must be at least ${min}`;
+  if (num > max) return `${fieldName} must be at most ${max}`;
+  return null;
+}
+
+export function validatePlateNumber(value: string): string | null {
+  if (!value || value.trim() === '') return null;
+  if (!/^[A-Za-z0-9\s\-]+$/.test(value.trim())) {
+    return 'Plate number should only contain letters, numbers, spaces, or hyphens';
+  }
+  return null;
+}
+
 export function validateFamilyDetails(data: {
   block: string;
   householdNumber: string;
   houseNumber: string;
   streetName: string;
   alley: string;
+  hasVehicles?: boolean;
+  motorcyclePlateNumbers?: string;
+  vehiclePlateNumbers?: string;
+  numberOfDogs?: string;
+  numberOfCats?: string;
+  numberOfMotorcycles?: string;
+  numberOfOtherVehicles?: string;
 }): ValidationErrors {
   const errors: ValidationErrors = {};
 
@@ -56,11 +92,32 @@ export function validateFamilyDetails(data: {
   const alleyErr = validateRequired(data.alley, "Alley");
   if (alleyErr) errors.alley = alleyErr;
 
+  if (data.hasVehicles) {
+    const plateErr1 = validatePlateNumber(data.motorcyclePlateNumbers || '');
+    if (plateErr1) errors.motorcyclePlateNumbers = plateErr1;
+
+    const plateErr2 = validatePlateNumber(data.vehiclePlateNumbers || '');
+    if (plateErr2) errors.vehiclePlateNumbers = plateErr2;
+
+    const dogsErr = validateNumber(data.numberOfDogs || '', 0, 100, 'Number of Dogs');
+    if (dogsErr) errors.numberOfDogs = dogsErr;
+
+    const catsErr = validateNumber(data.numberOfCats || '', 0, 100, 'Number of Cats');
+    if (catsErr) errors.numberOfCats = catsErr;
+
+    const motorcyclesErr = validateNumber(data.numberOfMotorcycles || '', 0, 50, 'Number of Motorcycles');
+    if (motorcyclesErr) errors.numberOfMotorcycles = motorcyclesErr;
+
+    const otherVehiclesErr = validateNumber(data.numberOfOtherVehicles || '', 0, 50, 'Number of Other Vehicles');
+    if (otherVehiclesErr) errors.numberOfOtherVehicles = otherVehiclesErr;
+  }
+
   return errors;
 }
 
 export function validateFamilyHead(data: {
   firstName: string;
+  middleName: string;
   lastName: string;
   birthDate: string;
   birthPlace: string;
@@ -87,8 +144,17 @@ export function validateFamilyHead(data: {
     if (nameErr) errors.lastName = nameErr;
   }
 
-  const birthDateErr = validateDate(data.birthDate, "Birth Date");
-  if (birthDateErr) errors.birthDate = birthDateErr;
+  if (data.middleName) {
+    const middleNameErr = validateName(data.middleName, "Middle Name");
+    if (middleNameErr) errors.middleName = middleNameErr;
+  }
+
+  if (!data.birthDate) {
+    errors.birthDate = 'Birth Date is required';
+  } else {
+    const dateErr = validateDateOfBirth(data.birthDate);
+    if (dateErr) errors.birthDate = dateErr;
+  }
 
   const birthPlaceErr = validateRequired(data.birthPlace, "Birth Place");
   if (birthPlaceErr) errors.birthPlace = birthPlaceErr;
@@ -117,6 +183,7 @@ export function validateFamilyMember(
   data: {
     relationship: string;
     firstName: string;
+    middleName: string;
     lastName: string;
     birthDate: string;
     sex: string;
@@ -146,8 +213,17 @@ export function validateFamilyMember(
     if (nameErr) errors[`${prefix}lastName`] = nameErr;
   }
 
-  const birthDateErr = validateDate(data.birthDate, "Birth Date");
-  if (birthDateErr) errors[`${prefix}birthDate`] = birthDateErr;
+  if (data.middleName) {
+    const middleNameErr = validateName(data.middleName, "Middle Name");
+    if (middleNameErr) errors[`${prefix}middleName`] = middleNameErr;
+  }
+
+  if (!data.birthDate) {
+    errors[`${prefix}birthDate`] = 'Birth Date is required';
+  } else {
+    const dateErr = validateDateOfBirth(data.birthDate);
+    if (dateErr) errors[`${prefix}birthDate`] = dateErr;
+  }
 
   const sexErr = validateRequired(data.sex, "Sex");
   if (sexErr) errors[`${prefix}sex`] = sexErr;
