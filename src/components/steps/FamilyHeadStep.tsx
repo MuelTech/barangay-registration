@@ -218,6 +218,7 @@ export default function FamilyHeadStep({ data, onChange, errors }: Props) {
                 onChange={(e) =>
                   onChange({ contactNumber: e.target.value })
                 }
+                maxLength={11}
                 className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.contactNumber ? "border-red-500" : "border-gray-300"}`}
                 placeholder="09XX XXX XXXX"
               />
