@@ -24,6 +24,14 @@ export function validateRequired(value: string, fieldName: string): string | nul
   return null;
 }
 
+export function validateName(value: string, fieldName: string): string | null {
+  if (!value || value.trim() === "") return null; // use validateRequired for required check
+  if (!/^[A-Za-z\s\-'.]+$/.test(value.trim())) {
+    return `${fieldName} should only contain letters, spaces, hyphens, or apostrophes`;
+  }
+  return null;
+}
+
 export function validateFamilyDetails(data: {
   block: string;
   householdNumber: string;
@@ -64,10 +72,20 @@ export function validateFamilyHead(data: {
   const errors: ValidationErrors = {};
 
   const firstNameErr = validateRequired(data.firstName, "First Name");
-  if (firstNameErr) errors.firstName = firstNameErr;
+  if (firstNameErr) {
+    errors.firstName = firstNameErr;
+  } else {
+    const nameErr = validateName(data.firstName, "First Name");
+    if (nameErr) errors.firstName = nameErr;
+  }
 
   const lastNameErr = validateRequired(data.lastName, "Last Name");
-  if (lastNameErr) errors.lastName = lastNameErr;
+  if (lastNameErr) {
+    errors.lastName = lastNameErr;
+  } else {
+    const nameErr = validateName(data.lastName, "Last Name");
+    if (nameErr) errors.lastName = nameErr;
+  }
 
   const birthDateErr = validateDate(data.birthDate, "Birth Date");
   if (birthDateErr) errors.birthDate = birthDateErr;
@@ -113,10 +131,20 @@ export function validateFamilyMember(
   if (relationshipErr) errors[`${prefix}relationship`] = relationshipErr;
 
   const firstNameErr = validateRequired(data.firstName, "First Name");
-  if (firstNameErr) errors[`${prefix}firstName`] = firstNameErr;
+  if (firstNameErr) {
+    errors[`${prefix}firstName`] = firstNameErr;
+  } else {
+    const nameErr = validateName(data.firstName, "First Name");
+    if (nameErr) errors[`${prefix}firstName`] = nameErr;
+  }
 
   const lastNameErr = validateRequired(data.lastName, "Last Name");
-  if (lastNameErr) errors[`${prefix}lastName`] = lastNameErr;
+  if (lastNameErr) {
+    errors[`${prefix}lastName`] = lastNameErr;
+  } else {
+    const nameErr = validateName(data.lastName, "Last Name");
+    if (nameErr) errors[`${prefix}lastName`] = nameErr;
+  }
 
   const birthDateErr = validateDate(data.birthDate, "Birth Date");
   if (birthDateErr) errors[`${prefix}birthDate`] = birthDateErr;
