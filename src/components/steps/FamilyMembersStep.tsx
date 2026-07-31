@@ -54,9 +54,10 @@ const EMPTY_MEMBER: MemberData = {
 interface Props {
   members: MemberData[];
   onChange: (members: MemberData[]) => void;
+  errors?: Record<string, string>;
 }
 
-export default function FamilyMembersStep({ members, onChange }: Props) {
+export default function FamilyMembersStep({ members, onChange, errors }: Props) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const addMember = () => {
@@ -171,7 +172,7 @@ export default function FamilyMembersStep({ members, onChange }: Props) {
                           relationship: e.target.value,
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.[`member_${index}_relationship`] ? "border-red-500" : "border-gray-300"}`}
                     >
                       <option value="">Select Relationship</option>
                       {RELATIONSHIP_OPTIONS.map((opt) => (
@@ -180,10 +181,20 @@ export default function FamilyMembersStep({ members, onChange }: Props) {
                         </option>
                       ))}
                     </select>
+                    {errors?.[`member_${index}_relationship`] && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors[`member_${index}_relationship`]}
+                      </p>
+                    )}
                   </div>
                   <FamilyHeadStep
                     data={member}
                     onChange={(data) => updateMember(index, data)}
+                    errors={Object.fromEntries(
+                      Object.entries(errors || {}).filter(([key]) =>
+                        key.startsWith(`member_${index}_`)
+                      ).map(([key, value]) => [key.replace(`member_${index}_`, ""), value])
+                    )}
                   />
                 </div>
               )}

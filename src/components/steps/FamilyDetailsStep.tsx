@@ -26,9 +26,10 @@ const BLOCK_OPTIONS = [
 interface Props {
   data: FamilyDetailsData;
   onChange: (data: Partial<FamilyDetailsData>) => void;
+  errors?: Record<string, string>;
 }
 
-export default function FamilyDetailsStep({ data, onChange }: Props) {
+export default function FamilyDetailsStep({ data, onChange, errors }: Props) {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
@@ -44,7 +45,7 @@ export default function FamilyDetailsStep({ data, onChange }: Props) {
               <select
                 value={data.block}
                 onChange={(e) => onChange({ block: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.block ? "border-red-500" : "border-gray-300"}`}
               >
                 <option value="">Select Block</option>
                 {BLOCK_OPTIONS.map((opt) => (
@@ -53,6 +54,7 @@ export default function FamilyDetailsStep({ data, onChange }: Props) {
                   </option>
                 ))}
               </select>
+              {errors?.block && <p className="text-red-500 text-xs mt-1">{errors.block}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -63,7 +65,7 @@ export default function FamilyDetailsStep({ data, onChange }: Props) {
                 onChange={(e) =>
                   onChange({ householdNumber: e.target.value })
                 }
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.householdNumber ? "border-red-500" : "border-gray-300"}`}
               >
                 <option value="">Select Number</option>
                 {Array.from({ length: 100 }, (_, i) => {
@@ -75,6 +77,7 @@ export default function FamilyDetailsStep({ data, onChange }: Props) {
                   );
                 })}
               </select>
+              {errors?.householdNumber && <p className="text-red-500 text-xs mt-1">{errors.householdNumber}</p>}
             </div>
           </div>
           <div>
@@ -85,9 +88,10 @@ export default function FamilyDetailsStep({ data, onChange }: Props) {
               type="text"
               value={data.houseNumber}
               onChange={(e) => onChange({ houseNumber: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.houseNumber ? "border-red-500" : "border-gray-300"}`}
               placeholder="Enter house number"
             />
+            {errors?.houseNumber && <p className="text-red-500 text-xs mt-1">{errors.houseNumber}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -97,9 +101,10 @@ export default function FamilyDetailsStep({ data, onChange }: Props) {
               type="text"
               value={data.streetName}
               onChange={(e) => onChange({ streetName: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.streetName ? "border-red-500" : "border-gray-300"}`}
               placeholder="Enter street name"
             />
+            {errors?.streetName && <p className="text-red-500 text-xs mt-1">{errors.streetName}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -109,9 +114,10 @@ export default function FamilyDetailsStep({ data, onChange }: Props) {
               type="text"
               value={data.alley}
               onChange={(e) => onChange({ alley: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.alley ? "border-red-500" : "border-gray-300"}`}
               placeholder="Enter alley"
             />
+            {errors?.alley && <p className="text-red-500 text-xs mt-1">{errors.alley}</p>}
           </div>
         </div>
       </div>

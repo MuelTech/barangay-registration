@@ -6,6 +6,12 @@ import FamilyHeadStep from "./steps/FamilyHeadStep";
 import FamilyMembersStep from "./steps/FamilyMembersStep";
 import ReviewStep from "./steps/ReviewStep";
 import { exportToExcel, FamilyData } from "@/lib/excelExport";
+import {
+  validateFamilyDetails,
+  validateFamilyHead,
+  validateFamilyMember,
+  ValidationErrors,
+} from "@/lib/validation";
 
 const STEPS = [
   { label: "Family Details", short: "Details" },
@@ -54,9 +60,8 @@ export default function RegistrationForm() {
   const [step, setStep] = useState(0);
   const [familyDetails, setFamilyDetails] = useState(defaultFamilyDetails);
   const [head, setHead] = useState(defaultHead);
-  const [members, setMembers] = useState<
-    typeof defaultHead[]
-  >([]);
+  const [members, setMembers] = useState<typeof defaultHead[]>([]);
+  const [errors, setErrors] = useState<ValidationErrors>({});
 
   const familyData: FamilyData = {
     ...familyDetails,
@@ -70,12 +75,47 @@ export default function RegistrationForm() {
 
   const canNext = () => {
     if (step === 0) {
-      return familyDetails.block && familyDetails.householdNumber;
+      const errs = validateFamilyDetails(familyDetails);
+      return Object.keys(errs).length === 0;
     }
     if (step === 1) {
-      return head.firstName && head.lastName;
+      const errs = validateFamilyHead(head);
+      return Object.keys(errs).length === 0;
+    }
+    if (step === 2) {
+      for (let i = 0; i < members.length; i++) {
+        const errs = validateFamilyMember(members[i], i);
+        if (Object.keys(errs).length > 0) return false;
+      }
+      return true;
     }
     return true;
+  };
+
+  const handleNext = () => {
+    let newErrors: ValidationErrors = {};
+
+    if (step === 0) {
+      newErrors = validateFamilyDetails(familyDetails);
+    } else if (step === 1) {
+      newErrors = validateFamilyHead(head);
+    } else if (step === 2) {
+      for (let i = 0; i < members.length; i++) {
+        const memberErrs = validateFamilyMember(members[i], i);
+        newErrors = { ...newErrors, ...memberErrs };
+      }
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      setStep(step + 1);
+    }
+  };
+
+  const handleBack = () => {
+    setErrors({});
+    setStep(step - 1);
   };
 
   return (
@@ -151,16 +191,22 @@ export default function RegistrationForm() {
               onChange={(data) =>
                 setFamilyDetails((prev) => ({ ...prev, ...data }))
               }
+              errors={errors}
             />
           )}
           {step === 1 && (
             <FamilyHeadStep
               data={head}
               onChange={(data) => setHead((prev) => ({ ...prev, ...data }))}
+              errors={errors}
             />
           )}
           {step === 2 && (
-            <FamilyMembersStep members={members} onChange={setMembers} />
+            <FamilyMembersStep
+              members={members}
+              onChange={setMembers}
+              errors={errors}
+            />
           )}
           {step === 3 && (
             <ReviewStep
@@ -175,7 +221,7 @@ export default function RegistrationForm() {
           {step > 0 && (
             <button
               type="button"
-              onClick={() => setStep(step - 1)}
+              onClick={handleBack}
               className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-xl border border-gray-300 transition-colors min-h-[48px]"
             >
               Back
@@ -184,7 +230,7 @@ export default function RegistrationForm() {
           {step < STEPS.length - 1 && (
             <button
               type="button"
-              onClick={() => setStep(step + 1)}
+              onClick={handleNext}
               disabled={!canNext()}
               className={`flex-1 font-semibold py-3 px-6 rounded-xl transition-colors min-h-[48px] ${
                 canNext()

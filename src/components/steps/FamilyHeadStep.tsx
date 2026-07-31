@@ -49,9 +49,10 @@ const EDUCATION_LEVEL_OPTIONS = [
 interface Props {
   data: MemberData;
   onChange: (data: Partial<MemberData>) => void;
+  errors?: Record<string, string>;
 }
 
-export default function FamilyHeadStep({ data, onChange }: Props) {
+export default function FamilyHeadStep({ data, onChange, errors }: Props) {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
@@ -68,9 +69,10 @@ export default function FamilyHeadStep({ data, onChange }: Props) {
                 type="text"
                 value={data.firstName}
                 onChange={(e) => onChange({ firstName: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.firstName ? "border-red-500" : "border-gray-300"}`}
                 placeholder="First name"
               />
+              {errors?.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -92,9 +94,10 @@ export default function FamilyHeadStep({ data, onChange }: Props) {
                 type="text"
                 value={data.lastName}
                 onChange={(e) => onChange({ lastName: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.lastName ? "border-red-500" : "border-gray-300"}`}
                 placeholder="Last name"
               />
+              {errors?.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -124,8 +127,9 @@ export default function FamilyHeadStep({ data, onChange }: Props) {
                 type="date"
                 value={data.birthDate}
                 onChange={(e) => onChange({ birthDate: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.birthDate ? "border-red-500" : "border-gray-300"}`}
               />
+              {errors?.birthDate && <p className="text-red-500 text-xs mt-1">{errors.birthDate}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -135,9 +139,10 @@ export default function FamilyHeadStep({ data, onChange }: Props) {
                 type="text"
                 value={data.birthPlace}
                 onChange={(e) => onChange({ birthPlace: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.birthPlace ? "border-red-500" : "border-gray-300"}`}
                 placeholder="City, Province"
               />
+              {errors?.birthPlace && <p className="text-red-500 text-xs mt-1">{errors.birthPlace}</p>}
             </div>
           </div>
 
@@ -149,7 +154,7 @@ export default function FamilyHeadStep({ data, onChange }: Props) {
               <select
                 value={data.civilStatus}
                 onChange={(e) => onChange({ civilStatus: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.civilStatus ? "border-red-500" : "border-gray-300"}`}
               >
                 <option value="">Select Status</option>
                 {CIVIL_STATUS_OPTIONS.map((opt) => (
@@ -158,6 +163,7 @@ export default function FamilyHeadStep({ data, onChange }: Props) {
                   </option>
                 ))}
               </select>
+              {errors?.civilStatus && <p className="text-red-500 text-xs mt-1">{errors.civilStatus}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -166,12 +172,13 @@ export default function FamilyHeadStep({ data, onChange }: Props) {
               <select
                 value={data.sex}
                 onChange={(e) => onChange({ sex: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.sex ? "border-red-500" : "border-gray-300"}`}
               >
                 <option value="">Select Sex</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
               </select>
+              {errors?.sex && <p className="text-red-500 text-xs mt-1">{errors.sex}</p>}
             </div>
           </div>
         </div>
@@ -190,7 +197,7 @@ export default function FamilyHeadStep({ data, onChange }: Props) {
               <select
                 value={data.occupation}
                 onChange={(e) => onChange({ occupation: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.occupation ? "border-red-500" : "border-gray-300"}`}
               >
                 <option value="">Select Occupation</option>
                 {OCCUPATION_OPTIONS.map((opt) => (
@@ -199,6 +206,7 @@ export default function FamilyHeadStep({ data, onChange }: Props) {
                   </option>
                 ))}
               </select>
+              {errors?.occupation && <p className="text-red-500 text-xs mt-1">{errors.occupation}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -210,9 +218,10 @@ export default function FamilyHeadStep({ data, onChange }: Props) {
                 onChange={(e) =>
                   onChange({ contactNumber: e.target.value })
                 }
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.contactNumber ? "border-red-500" : "border-gray-300"}`}
                 placeholder="09XX XXX XXXX"
               />
+              {errors?.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
             </div>
           </div>
         </div>
