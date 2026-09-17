@@ -42,7 +42,8 @@ export interface FamilyData {
 const toYesNo = (value: boolean): string => (value ? "Yes" : "No");
 
 export function exportToExcel(data: FamilyData) {
-  const familyId = `FAM-${Date.now()}`;
+  const submittedAt = new Date();
+  const familyId = `FAM-${submittedAt.getTime()}`;
   const rows: Record<string, string>[] = [];
 
   const baseFields = {
@@ -83,6 +84,7 @@ export function exportToExcel(data: FamilyData) {
       is_pwd: toYesNo(member.isPwd),
       is_solo_parent: toYesNo(member.isSoloParent),
       is_owner: toYesNo(member.isOwner),
+      registered_at: submittedAt.toISOString(),
     });
   };
 
