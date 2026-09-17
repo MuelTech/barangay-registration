@@ -16,6 +16,7 @@ interface MemberData {
   isVoter: boolean;
   isPwd: boolean;
   isSoloParent: boolean;
+  isOwner: boolean;
   relationship: string;
 }
 
@@ -50,9 +51,10 @@ interface Props {
   data: MemberData;
   onChange: (data: Partial<MemberData>) => void;
   errors?: Record<string, string>;
+  showHomeowner?: boolean;
 }
 
-export default function FamilyHeadStep({ data, onChange, errors }: Props) {
+export default function FamilyHeadStep({ data, onChange, errors, showHomeowner }: Props) {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
@@ -315,6 +317,19 @@ export default function FamilyHeadStep({ data, onChange, errors }: Props) {
               Solo Parent
             </span>
           </label>
+          {showHomeowner && (
+            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50">
+              <input
+                type="checkbox"
+                checked={data.isOwner}
+                onChange={(e) => onChange({ isOwner: e.target.checked })}
+                className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                Homeowner
+              </span>
+            </label>
+          )}
         </div>
       </div>
     </div>

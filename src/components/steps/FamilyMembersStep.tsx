@@ -19,6 +19,7 @@ interface MemberData {
   isVoter: boolean;
   isPwd: boolean;
   isSoloParent: boolean;
+  isOwner: boolean;
   relationship: string;
 }
 
@@ -48,6 +49,7 @@ const EMPTY_MEMBER: MemberData = {
   isVoter: false,
   isPwd: false,
   isSoloParent: false,
+  isOwner: false,
   relationship: "",
 };
 
