@@ -16,6 +16,7 @@ export interface FamilyMemberData {
   isVoter: boolean;
   isPwd: boolean;
   isSoloParent: boolean;
+  isOwner: boolean;
   relationship: string;
 }
 
@@ -81,7 +82,7 @@ export function exportToExcel(data: FamilyData) {
       is_voter: toYesNo(member.isVoter),
       is_pwd: toYesNo(member.isPwd),
       is_solo_parent: toYesNo(member.isSoloParent),
-      is_owner: toYesNo(member.relationship === "Head"),
+      is_owner: toYesNo(member.isOwner),
     });
   };
 

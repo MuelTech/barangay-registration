@@ -53,6 +53,7 @@ const defaultHead = {
   isVoter: false,
   isPwd: false,
   isSoloParent: false,
+  isOwner: false,
   relationship: "",
 };
 
@@ -199,6 +200,7 @@ export default function RegistrationForm() {
               data={head}
               onChange={(data) => setHead((prev) => ({ ...prev, ...data }))}
               errors={errors}
+              showHomeowner
             />
           )}
           {step === 2 && (
