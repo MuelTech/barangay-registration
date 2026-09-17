@@ -41,6 +41,8 @@ const OCCUPATION_OPTIONS = [
 ];
 
 const EDUCATION_LEVEL_OPTIONS = [
+  { value: "Day Care", label: "Day Care" },
+  { value: "Kinder", label: "Kinder" },
   { value: "Elementary", label: "Elementary" },
   { value: "High School", label: "High School" },
   { value: "College", label: "College" },

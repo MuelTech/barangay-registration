@@ -2,6 +2,96 @@ export interface ValidationErrors {
   [key: string]: string;
 }
 
+export const SEXES = ["Male", "Female"] as const;
+export const SUFFIXES = ["Jr.", "Sr.", "II", "III", "IV"] as const;
+export const CIVIL_STATUSES = [
+  "Single",
+  "Married",
+  "Widowed",
+  "Separated",
+  "Divorced",
+] as const;
+export const OCCUPATIONS = [
+  "Employed",
+  "Self-Employed",
+  "Unemployed",
+  "Student",
+] as const;
+export const EDUCATION_LEVELS = [
+  "Day Care",
+  "Kinder",
+  "Elementary",
+  "High School",
+  "College",
+  "Vocational",
+] as const;
+
+/** Minimum plausible age per education level (obvious impossibilities only). */
+export const EDUCATION_MIN_AGE: Record<string, number> = {
+  "Day Care": 2,
+  Kinder: 4,
+  Elementary: 5,
+  "High School": 11,
+  College: 15,
+  Vocational: 15,
+};
+
+export const VOTER_MIN_AGE = 18;
+
+function canonical(value: string, allowed: readonly string[]): string | undefined {
+  const v = value.trim().toLowerCase();
+  return allowed.find((a) => a.toLowerCase() === v);
+}
+
+export function toTitleCase(value: string): string {
+  return value
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase()
+    .replace(
+      /(^|[\s\-'.])(\p{L})/gu,
+      (_m, sep: string, ch: string) => sep + ch.toUpperCase()
+    );
+}
+
+export function ageFrom(date: Date, now: Date = new Date()): number {
+  let age = now.getFullYear() - date.getFullYear();
+  const m = now.getMonth() - date.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < date.getDate())) age--;
+  return age;
+}
+
+function educationAndVoterErrors(data: {
+  birthDate?: string;
+  isStudent?: boolean;
+  educationLevel?: string;
+  isVoter?: boolean;
+}): ValidationErrors {
+  const errors: ValidationErrors = {};
+  const age = data.birthDate ? ageFrom(new Date(data.birthDate)) : null;
+  const level = data.educationLevel
+    ? canonical(data.educationLevel, EDUCATION_LEVELS)
+    : undefined;
+
+  if (data.isStudent) {
+    if (!data.educationLevel) {
+      errors.educationLevel = "Education level is required for students";
+    } else if (!level) {
+      errors.educationLevel = "Invalid education level";
+    } else if (age !== null && age < (EDUCATION_MIN_AGE[level] ?? 0)) {
+      errors.educationLevel = "Education level is too advanced for the given age";
+    }
+  } else if (data.educationLevel && !level) {
+    errors.educationLevel = "Invalid education level";
+  }
+
+  if (data.isVoter && age !== null && age < VOTER_MIN_AGE) {
+    errors.isVoter = "Voter must be at least 18 years old";
+  }
+
+  return errors;
+}
+
 export function validatePhone(phone: string): string | null {
   if (!phone) return null;
   const cleaned = phone.replace(/[\s\-()]/g, "");
@@ -67,6 +157,7 @@ export function validateFamilyDetails(data: {
   houseNumber: string;
   streetName: string;
   alley: string;
+  hasPets?: boolean;
   hasVehicles?: boolean;
   motorcyclePlateNumbers?: string;
   vehiclePlateNumbers?: string;
@@ -92,18 +183,20 @@ export function validateFamilyDetails(data: {
   const alleyErr = validateRequired(data.alley, "Alley");
   if (alleyErr) errors.alley = alleyErr;
 
+  if (data.hasPets) {
+    const dogsErr = validateNumber(data.numberOfDogs || '', 0, 100, 'Number of Dogs');
+    if (dogsErr) errors.numberOfDogs = dogsErr;
+
+    const catsErr = validateNumber(data.numberOfCats || '', 0, 100, 'Number of Cats');
+    if (catsErr) errors.numberOfCats = catsErr;
+  }
+
   if (data.hasVehicles) {
     const plateErr1 = validatePlateNumber(data.motorcyclePlateNumbers || '');
     if (plateErr1) errors.motorcyclePlateNumbers = plateErr1;
 
     const plateErr2 = validatePlateNumber(data.vehiclePlateNumbers || '');
     if (plateErr2) errors.vehiclePlateNumbers = plateErr2;
-
-    const dogsErr = validateNumber(data.numberOfDogs || '', 0, 100, 'Number of Dogs');
-    if (dogsErr) errors.numberOfDogs = dogsErr;
-
-    const catsErr = validateNumber(data.numberOfCats || '', 0, 100, 'Number of Cats');
-    if (catsErr) errors.numberOfCats = catsErr;
 
     const motorcyclesErr = validateNumber(data.numberOfMotorcycles || '', 0, 50, 'Number of Motorcycles');
     if (motorcyclesErr) errors.numberOfMotorcycles = motorcyclesErr;
@@ -119,12 +212,16 @@ export function validateFamilyHead(data: {
   firstName: string;
   middleName: string;
   lastName: string;
+  suffix?: string;
   birthDate: string;
   birthPlace: string;
   civilStatus: string;
   sex: string;
   contactNumber: string;
   occupation: string;
+  isStudent?: boolean;
+  educationLevel?: string;
+  isVoter?: boolean;
 }): ValidationErrors {
   const errors: ValidationErrors = {};
 
@@ -149,6 +246,10 @@ export function validateFamilyHead(data: {
     if (middleNameErr) errors.middleName = middleNameErr;
   }
 
+  if (data.suffix && !canonical(data.suffix, SUFFIXES)) {
+    errors.suffix = "Invalid suffix";
+  }
+
   if (!data.birthDate) {
     errors.birthDate = 'Birth Date is required';
   } else {
@@ -159,11 +260,17 @@ export function validateFamilyHead(data: {
   const birthPlaceErr = validateRequired(data.birthPlace, "Birth Place");
   if (birthPlaceErr) errors.birthPlace = birthPlaceErr;
 
-  const civilStatusErr = validateRequired(data.civilStatus, "Civil Status");
-  if (civilStatusErr) errors.civilStatus = civilStatusErr;
+  if (!data.civilStatus) {
+    errors.civilStatus = "Civil Status is required";
+  } else if (!canonical(data.civilStatus, CIVIL_STATUSES)) {
+    errors.civilStatus = "Invalid civil status";
+  }
 
-  const sexErr = validateRequired(data.sex, "Sex");
-  if (sexErr) errors.sex = sexErr;
+  if (!data.sex) {
+    errors.sex = "Sex is required";
+  } else if (!canonical(data.sex, SEXES)) {
+    errors.sex = "Invalid sex";
+  }
 
   const contactErr = validateRequired(data.contactNumber, "Contact Number");
   if (contactErr) {
@@ -173,8 +280,13 @@ export function validateFamilyHead(data: {
     if (phoneErr) errors.contactNumber = phoneErr;
   }
 
-  const occupationErr = validateRequired(data.occupation, "Occupation");
-  if (occupationErr) errors.occupation = occupationErr;
+  if (!data.occupation) {
+    errors.occupation = "Occupation is required";
+  } else if (!canonical(data.occupation, OCCUPATIONS)) {
+    errors.occupation = "Invalid occupation";
+  }
+
+  Object.assign(errors, educationAndVoterErrors(data));
 
   return errors;
 }
@@ -185,9 +297,15 @@ export function validateFamilyMember(
     firstName: string;
     middleName: string;
     lastName: string;
+    suffix?: string;
     birthDate: string;
+    civilStatus?: string;
     sex: string;
     contactNumber: string;
+    occupation?: string;
+    isStudent?: boolean;
+    educationLevel?: string;
+    isVoter?: boolean;
   },
   index: number
 ): ValidationErrors {
@@ -218,6 +336,10 @@ export function validateFamilyMember(
     if (middleNameErr) errors[`${prefix}middleName`] = middleNameErr;
   }
 
+  if (data.suffix && !canonical(data.suffix, SUFFIXES)) {
+    errors[`${prefix}suffix`] = "Invalid suffix";
+  }
+
   if (!data.birthDate) {
     errors[`${prefix}birthDate`] = 'Birth Date is required';
   } else {
@@ -225,13 +347,28 @@ export function validateFamilyMember(
     if (dateErr) errors[`${prefix}birthDate`] = dateErr;
   }
 
-  const sexErr = validateRequired(data.sex, "Sex");
-  if (sexErr) errors[`${prefix}sex`] = sexErr;
+  if (!data.sex) {
+    errors[`${prefix}sex`] = "Sex is required";
+  } else if (!canonical(data.sex, SEXES)) {
+    errors[`${prefix}sex`] = "Invalid sex";
+  }
 
   if (data.contactNumber) {
     const phoneErr = validatePhone(data.contactNumber);
     if (phoneErr) errors[`${prefix}contactNumber`] = phoneErr;
   }
+
+  if (data.civilStatus && !canonical(data.civilStatus, CIVIL_STATUSES)) {
+    errors[`${prefix}civilStatus`] = "Invalid civil status";
+  }
+
+  if (data.occupation && !canonical(data.occupation, OCCUPATIONS)) {
+    errors[`${prefix}occupation`] = "Invalid occupation";
+  }
+
+  const extra = educationAndVoterErrors(data);
+  if (extra.educationLevel) errors[`${prefix}educationLevel`] = extra.educationLevel;
+  if (extra.isVoter) errors[`${prefix}isVoter`] = extra.isVoter;
 
   return errors;
 }
