@@ -5,7 +5,7 @@ import FamilyDetailsStep from "./steps/FamilyDetailsStep";
 import FamilyHeadStep from "./steps/FamilyHeadStep";
 import FamilyMembersStep from "./steps/FamilyMembersStep";
 import ReviewStep from "./steps/ReviewStep";
-import { exportToExcel, FamilyData } from "@/lib/excelExport";
+import { FamilyData } from "@/lib/registrationRows";
 import {
   validateFamilyDetails,
   validateFamilyHead,
@@ -63,6 +63,11 @@ export default function RegistrationForm() {
   const [head, setHead] = useState(defaultHead);
   const [members, setMembers] = useState<typeof defaultHead[]>([]);
   const [errors, setErrors] = useState<ValidationErrors>({});
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
+  const [submitError, setSubmitError] = useState("");
+  const [honeypot, setHoneypot] = useState("");
 
   const familyData: FamilyData = {
     ...familyDetails,
@@ -70,8 +75,33 @@ export default function RegistrationForm() {
     members,
   };
 
-  const handleDownloadExcel = () => {
-    exportToExcel(familyData);
+  const handleSubmit = async () => {
+    setSubmitStatus("submitting");
+    setSubmitError("");
+
+    try {
+      const response = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...familyData, company: honeypot }),
+      });
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok || !result?.ok) {
+        setSubmitStatus("error");
+        setSubmitError(
+          result?.error ?? "Unable to save registration. Please try again."
+        );
+        return;
+      }
+
+      setSubmitStatus("success");
+    } catch {
+      setSubmitStatus("error");
+      setSubmitError(
+        "Network error. Please check your connection and try again."
+      );
+    }
   };
 
   const canNext = () => {
@@ -213,7 +243,11 @@ export default function RegistrationForm() {
           {step === 3 && (
             <ReviewStep
               data={familyData}
-              onDownloadExcel={handleDownloadExcel}
+              onSubmit={handleSubmit}
+              status={submitStatus}
+              error={submitError}
+              honeypot={honeypot}
+              onHoneypotChange={setHoneypot}
             />
           )}
         </div>
