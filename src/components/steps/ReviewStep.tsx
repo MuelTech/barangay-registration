@@ -40,7 +40,11 @@ interface FamilyData {
 
 interface Props {
   data: FamilyData;
-  onDownloadExcel: () => void;
+  onSubmit: () => void;
+  status: "idle" | "submitting" | "success" | "error";
+  error: string;
+  honeypot: string;
+  onHoneypotChange: (value: string) => void;
 }
 
 function formatName(m: FamilyMemberData) {
@@ -50,7 +54,14 @@ function formatName(m: FamilyMemberData) {
   return name || "—";
 }
 
-export default function ReviewStep({ data, onDownloadExcel }: Props) {
+export default function ReviewStep({
+  data,
+  onSubmit,
+  status,
+  error,
+  honeypot,
+  onHoneypotChange,
+}: Props) {
   const allMembers = [
     { ...data.head, relationship: "Head" },
     ...data.members,
@@ -191,39 +202,53 @@ export default function ReviewStep({ data, onDownloadExcel }: Props) {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Export & Submit
+          Submit Registration
         </h3>
         <div className="space-y-3">
-          <button
-            type="button"
-            onClick={onDownloadExcel}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors min-h-[48px] flex items-center justify-center gap-2"
+          <div
+            aria-hidden="true"
+            className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            Download as Excel
-          </button>
-          <button
-            type="button"
-            disabled
-            className="w-full bg-gray-300 text-gray-500 font-semibold py-3 px-6 rounded-xl min-h-[48px] cursor-not-allowed"
-          >
-            Submit Registration (Coming Soon)
-          </button>
-          <p className="text-xs text-gray-500 text-center">
-            Google Sheets integration coming soon.
-          </p>
+            <label htmlFor="company">Company</label>
+            <input
+              id="company"
+              name="company"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={honeypot}
+              onChange={(event) => onHoneypotChange(event.target.value)}
+            />
+          </div>
+
+          {status === "success" ? (
+            <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+              Registration submitted successfully. Thank you!
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onSubmit}
+                disabled={status === "submitting"}
+                className={`w-full font-semibold py-3 px-6 rounded-xl transition-colors min-h-[48px] flex items-center justify-center gap-2 ${
+                  status === "submitting"
+                    ? "bg-blue-400 text-white cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                {status === "submitting"
+                  ? "Submitting..."
+                  : "Submit Registration"}
+              </button>
+              {status === "error" && error && (
+                <p className="text-sm text-red-600 text-center">{error}</p>
+              )}
+              <p className="text-xs text-gray-500 text-center">
+                Your registration will be saved to the barangay Google Sheet.
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
