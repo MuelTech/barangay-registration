@@ -86,9 +86,10 @@ export default function FamilyHeadStep({ data, onChange, errors, showHomeowner }
                 type="text"
                 value={data.middleName}
                 onChange={(e) => onChange({ middleName: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.middleName ? "border-red-500" : "border-gray-300"}`}
                 placeholder="Middle name"
               />
+              {errors?.middleName && <p className="text-red-500 text-xs mt-1">{errors.middleName}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -265,7 +266,7 @@ export default function FamilyHeadStep({ data, onChange, errors, showHomeowner }
                 onChange={(e) =>
                   onChange({ educationLevel: e.target.value })
                 }
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full border rounded-lg px-3 py-2.5 text-base min-h-[48px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors?.educationLevel ? "border-red-500" : "border-gray-300"}`}
               >
                 <option value="">Select Level</option>
                 {EDUCATION_LEVEL_OPTIONS.map((opt) => (
@@ -274,6 +275,9 @@ export default function FamilyHeadStep({ data, onChange, errors, showHomeowner }
                   </option>
                 ))}
               </select>
+              {errors?.educationLevel && (
+                <p className="text-red-500 text-xs mt-1">{errors.educationLevel}</p>
+              )}
             </div>
           )}
         </div>
@@ -333,6 +337,11 @@ export default function FamilyHeadStep({ data, onChange, errors, showHomeowner }
             </label>
           )}
         </div>
+        {(errors?.isVoter || errors?.isPwd || errors?.isSoloParent || errors?.isOwner) && (
+          <p className="text-red-500 text-xs font-medium mt-3">
+            {errors?.isVoter || errors?.isPwd || errors?.isSoloParent || errors?.isOwner}
+          </p>
+        )}
       </div>
     </div>
   );

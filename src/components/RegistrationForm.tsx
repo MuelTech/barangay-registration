@@ -89,8 +89,13 @@ export default function RegistrationForm() {
 
       if (!response.ok || !result?.ok) {
         setSubmitStatus("error");
+        const fieldErrors = result?.errors
+          ? Object.values(result.errors as Record<string, string>)
+          : [];
         setSubmitError(
-          result?.error ?? "Unable to save registration. Please try again."
+          result?.error ??
+            fieldErrors[0] ??
+            "Unable to save registration. Please try again."
         );
         return;
       }
