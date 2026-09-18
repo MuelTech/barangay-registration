@@ -113,3 +113,19 @@ test("member validation enforces sex enum with a prefixed key", () => {
   );
   assert.ok(errors.member_0_sex);
 });
+
+test("member validation flags a missing education level for students", () => {
+  const errors = validateFamilyMember(
+    { ...head, relationship: "Child", isStudent: true, educationLevel: "" },
+    0
+  );
+  assert.ok(errors.member_0_educationLevel);
+});
+
+test("member validation flags an under-18 voter", () => {
+  const errors = validateFamilyMember(
+    { ...head, relationship: "Child", birthDate: "2015-01-01", isVoter: true },
+    0
+  );
+  assert.ok(errors.member_0_isVoter);
+});
